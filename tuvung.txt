@@ -1,0 +1,6 @@
+corollary|he qua
+respectively|lan luot
+vertex|dinh
+formula|cong thuc
+perimeter|chu vi
+this implies that|dieu nay dan toi
