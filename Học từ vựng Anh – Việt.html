@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Học từ vựng Anh – Việt</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F4F5F7;--surface:#fff;--text:#333333;--muted:#5d6472;--line:#dcdfe5;
+  --accent:#002060;--accent-ink:#fff;--soft:#e6e9f1;--head:#002060;--bar:#C8102E;--focus:#002060;
+  --ok:#14804a;--okbg:#e2f5ea;--bad:#C8102E;--badbg:#fbe8ec;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#00102e;--surface:#002060;--text:#F4F5F7;--muted:#aab6d6;--line:#1d3a7a;
+    --accent:#C8102E;--accent-ink:#fff;--soft:#17388a;--head:#F4F5F7;--bar:#e8344f;--focus:#ff7a90;
+    --ok:#5fd394;--okbg:#0c3a35;--bad:#ff7d92;--badbg:#3a1520;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#00102e;--surface:#002060;--text:#F4F5F7;--muted:#aab6d6;--line:#1d3a7a;
+  --accent:#C8102E;--accent-ink:#fff;--soft:#17388a;--head:#F4F5F7;--bar:#e8344f;--focus:#ff7a90;
+  --ok:#5fd394;--okbg:#0c3a35;--bad:#ff7d92;--badbg:#3a1520;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:620px;margin:0 auto;padding:20px 16px 48px}
+h1{font:600 1.5rem/1.2 "Iowan Old Style","Palatino Linotype",Georgia,serif;margin:8px 0 2px;color:var(--head)}
+h1::after{content:"";display:block;width:44px;height:4px;background:var(--bar);border-radius:2px;margin:10px 0 12px}
+h2{font-size:1.05rem;margin:0 0 12px}
+.sub{color:var(--muted);margin:0 0 18px;font-size:.95rem}
+.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:12px;margin-bottom:16px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;padding:9px 8px;border-radius:9px;cursor:pointer}
+.tabs button.on{background:var(--accent);color:var(--accent-ink)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.card.empty{text-align:center}
+.field{display:block;margin-bottom:14px;font-size:.92rem;color:var(--muted)}
+input[type=text],input[type=number],textarea{display:block;width:100%;margin-top:6px;padding:11px 12px;font:inherit;font-size:16px;color:var(--text);background:var(--bg);border:1.5px solid var(--line);border-radius:10px}
+textarea{min-height:90px;resize:vertical;font-size:14px}
+input:focus,textarea:focus,button:focus-visible,summary:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+.btn{border:0;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:600;padding:11px 18px;border-radius:10px;cursor:pointer}
+.btn.ghost{background:var(--soft);color:var(--text)}
+.btn:active{transform:translateY(1px)}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chips label{cursor:pointer}
+.chips input{position:absolute;opacity:0}
+.chips span{display:inline-block;padding:9px 14px;border:1.5px solid var(--line);border-radius:999px;font-weight:600;color:var(--muted)}
+.chips input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chips input:focus-visible+span{outline:2.5px solid var(--focus);outline-offset:2px}
+.bar{height:6px;background:var(--soft);border-radius:6px;overflow:hidden;margin-bottom:14px}
+.bar i{display:block;height:100%;background:var(--bar);transition:width .3s}
+.meta{display:flex;justify-content:space-between;color:var(--muted);font-size:.88rem}
+.q{font:600 2.2rem/1.2 "Iowan Old Style","Palatino Linotype",Georgia,serif;text-align:center;padding:26px 8px 22px;overflow-wrap:anywhere;color:var(--head)}
+.msg{min-height:1.6em;margin-top:10px;font-weight:600;font-size:.95rem}
+.msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}.msg.info{color:var(--muted)}
+.shake{animation:sh .3s}
+@keyframes sh{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}.bar i{transition:none}}
+.link{border:0;background:none;color:var(--muted);font:inherit;text-decoration:underline;cursor:pointer;margin-top:12px;padding:0}
+.score{font:600 3rem/1 "Iowan Old Style",Georgia,serif;text-align:center;margin:6px 0;color:var(--head)}
+.center{text-align:center;color:var(--muted)}
+.wrong{margin:14px 0 0;padding:0;list-style:none}
+.wrong li{padding:8px 10px;background:var(--badbg);border-radius:8px;margin-bottom:6px}
+ul.words{list-style:none;margin:0;padding:0}
+ul.words li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+ul.words li:last-child{border-bottom:0}
+ul.words .w{flex:1;min-width:0;overflow-wrap:anywhere}
+ul.words .w b{display:block}
+ul.words .w span{color:var(--muted)}
+.del{border:0;background:var(--badbg);color:var(--bad);width:34px;height:34px;border-radius:8px;font-size:1.1rem;cursor:pointer}
+details.card summary{cursor:pointer;font-weight:600}
+details.card p{color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>Học từ vựng Anh – Việt</h1>
+  <p class="sub" id="count"></p>
+  <nav class="tabs" aria-label="Chức năng">
+    <button data-tab="learn" class="on">Học</button>
+    <button data-tab="add">Thêm từ</button>
+    <button data-tab="list">Danh sách</button>
+  </nav>
+
+  <section id="learn">
+    <div id="setup"></div>
+    <div id="quiz" hidden></div>
+    <div id="result" hidden></div>
+  </section>
+
+  <section id="add" hidden>
+    <div class="card">
+      <h2>Thêm từ mới</h2>
+      <form id="addf" autocomplete="off">
+        <label class="field">Từ tiếng Anh<input type="text" id="en" autocapitalize="none" spellcheck="false"></label>
+        <label class="field">Nghĩa tiếng Việt<input type="text" id="vi"></label>
+        <button class="btn" type="submit">Thêm từ</button>
+        <div class="msg" id="addmsg" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
+
+  <section id="list" hidden>
+    <div class="card"><ul class="words" id="words"></ul></div>
+    <details class="card">
+      <summary>Sao lưu và nhập từ</summary>
+      <p>Từ của bạn được lưu trong trình duyệt của thiết bị này. Chép đoạn dưới đây để sao lưu, hoặc dán nội dung cũ (mỗi dòng dạng <code>apple|quả táo</code>, giống file tuvung.txt của chương trình C++) để nhập vào.</p>
+      <label class="field">Danh sách hiện tại<textarea id="exp" readonly></textarea></label>
+      <label class="field">Dán để nhập thêm<textarea id="imp"></textarea></label>
+      <button class="btn" id="impbtn" type="button">Nhập từ</button>
+      <div class="msg" id="impmsg" aria-live="polite"></div>
+    </details>
+  </section>
+</main>
+
+<script>
+(function(){
+  var KEY="tuvung-v1", words=[], q=null;
+  var $=function(s){return document.querySelector(s)};
+  var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+  var clean=function(s){return s.replace(/\s+/g," ").trim()};
+  var nEn=function(s){return clean(s).toLowerCase()};
+  var nVi=function(s){return clean(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[đĐ]/g,"d").toLowerCase()};
+  var nfc=function(s){return clean(s).normalize("NFC").toLowerCase()};
+
+  function load(){try{words=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){words=[]}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(words))}catch(e){}}
+
+  function show(tab){
+    ["learn","add","list"].forEach(function(t){$("#"+t).hidden=(t!==tab)});
+    document.querySelectorAll(".tabs button").forEach(function(b){b.classList.toggle("on",b.dataset.tab===tab)});
+    if(tab==="list")renderList();
+    if(tab==="learn"&&!q)renderSetup();
+    if(tab==="add")$("#en").focus();
+  }
+  document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function(){show(b.dataset.tab)}});
+
+  function updateCount(){$("#count").textContent=words.length?"Bạn đang có "+words.length+" từ.":"Hãy thêm vài từ để bắt đầu."}
+
+  /* ---------- Học ---------- */
+  function renderSetup(){
+    updateCount();
+    $("#quiz").hidden=true;$("#result").hidden=true;$("#setup").hidden=false;
+    var n=words.length,box=$("#setup");
+    if(!n){
+      box.innerHTML='<div class="card empty"><p>Chưa có từ nào để kiểm tra.</p><button class="btn" id="goAdd" type="button">Thêm từ đầu tiên</button></div>';
+      $("#goAdd").onclick=function(){show("add")};return;
+    }
+    box.innerHTML='<div class="card"><h2>Chọn kiểu kiểm tra</h2>'+
+      '<div class="chips">'+
+      '<label><input type="radio" name="mode" value="0" checked><span>Anh → Việt</span></label>'+
+      '<label><input type="radio" name="mode" value="1"><span>Việt → Anh</span></label>'+
+      '<label><input type="radio" name="mode" value="2"><span>Ngẫu nhiên</span></label></div>'+
+      '<label class="field">Số câu (tối đa '+n+')<input type="number" id="num" min="1" max="'+n+'" value="'+Math.min(10,n)+'"></label>'+
+      '<button class="btn" id="start" type="button">Bắt đầu</button></div>';
+    $("#start").onclick=startQuiz;
+  }
+
+  function startQuiz(){
+    var mode=+document.querySelector("input[name=mode]:checked").value;
+    var num=parseInt($("#num").value,10);
+    if(!(num>=1))num=words.length;
+    num=Math.min(num,words.length);
+    var list=words.slice();
+    for(var i=list.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=list[i];list[i]=list[j];list[j]=t}
+    q={list:list.slice(0,num),i:0,mode:mode,score:0,asked:0,wrong:[],phase:"ask"};
+    $("#setup").hidden=true;$("#result").hidden=true;$("#quiz").hidden=false;
+    nextQ();
+  }
+
+  function nextQ(){
+    if(q.i>=q.list.length)return finish();
+    var c=q.list[q.i];
+    q.cur=c;q.toVi=q.mode===0||(q.mode===2&&Math.random()<.5);
+    q.acc=words.filter(function(w){return q.toVi?nEn(w.en)===nEn(c.en):nVi(w.vi)===nVi(c.vi)}).map(function(w){return q.toVi?w.vi:w.en});
+    q.tries=0;q.hinted=false;q.phase="ask";
+    $("#quiz").innerHTML='<div class="bar"><i style="width:'+(q.i/q.list.length*100)+'%"></i></div>'+
+      '<div class="card"><div class="meta"><span>Câu '+(q.i+1)+'/'+q.list.length+'</span><span>'+(q.toVi?"Anh → Việt":"Việt → Anh")+'</span></div>'+
+      '<div class="q">'+esc(q.toVi?c.en:c.vi)+'</div>'+
+      '<form id="f" autocomplete="off"><input type="text" id="ans" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="'+(q.toVi?"Nghĩa tiếng Việt (gõ không dấu cũng được)":"Từ tiếng Anh")+'" aria-label="Câu trả lời">'+
+      '<div class="msg" id="msg" aria-live="polite"></div>'+
+      '<div class="row" id="acts"><button class="btn" type="submit">Kiểm tra</button>'+
+      '<button class="btn ghost" type="button" id="hint">Gợi ý</button>'+
+      '<button class="btn ghost" type="button" id="skip">Bỏ qua</button></div></form>'+
+      '<button class="link" type="button" id="stop">Dừng bài kiểm tra</button></div>';
+    $("#f").onsubmit=function(e){e.preventDefault();if(q.phase==="ask")check()};
+    $("#hint").onclick=hint;
+    $("#skip").onclick=function(){reveal(false,"Đã bỏ qua. Đáp án: "+q.acc[0])};
+    $("#stop").onclick=finish;
+    $("#ans").focus();
+  }
+
+  function msg(text,cls){var m=$("#msg");m.textContent=text;m.className="msg "+cls}
+
+  function hint(){
+    if(q.phase!=="ask")return;
+    q.hinted=true;
+    var a=q.toVi?nVi(q.acc[0]):clean(q.acc[0]);
+    var h=a.split("").map(function(ch,i){return ch===" "?"  ":(i===0?ch:"_")}).join(" ");
+    msg("Gợi ý: "+h,"info");
+    $("#ans").focus();
+  }
+
+  function check(){
+    var a=$("#ans").value;
+    if(!clean(a)){var el=$("#ans");el.classList.remove("shake");void el.offsetWidth;el.classList.add("shake");return}
+    var ok=false,exact=false,best="";
+    q.acc.forEach(function(x){
+      if(q.toVi?nVi(a)===nVi(x):nEn(a)===nEn(x)){
+        ok=true;best=x;if(nfc(a)===nfc(x))exact=true;
+      }
+    });
+    if(ok){
+      var t=exact?"Chính xác!":"Đúng rồi! Viết đầy đủ là: "+best;
+      if(q.hinted)t+=" (đã dùng gợi ý nên không tính điểm)";
+      reveal(true,t);
+    }else{
+      q.tries++;
+      if(q.tries>=3)reveal(false,"Sai 3 lần rồi. Đáp án: "+q.acc[0]);
+      else{
+        msg("Chưa đúng, thử lại nhé (còn "+(3-q.tries)+" lần).","bad");
+        var el=$("#ans");el.classList.remove("shake");void el.offsetWidth;el.classList.add("shake");el.select();
+      }
+    }
+  }
+
+  function reveal(ok,text){
+    q.phase="feedback";q.asked++;
+    if(ok){if(!q.hinted)q.score++}else q.wrong.push(q.cur);
+    msg(text,ok?"ok":"bad");
+    $("#ans").readOnly=true;
+    $("#acts").innerHTML='<button class="btn" type="button" id="nxt">Câu tiếp</button>';
+    $("#nxt").onclick=function(){q.i++;nextQ()};
+    $("#nxt").focus();
+  }
+
+  function finish(){
+    var asked=q.asked,pct=asked?Math.round(q.score*100/asked):0;
+    var note=!asked?"Chưa có câu nào được làm.":pct===100?"Tuyệt vời!":pct>=70?"Khá tốt, cố lên!":"Cần ôn thêm nhé.";
+    var h='<div class="bar"><i style="width:100%"></i></div><div class="card"><div class="score">'+q.score+'/'+asked+'</div><p class="center">'+pct+'% – '+note+'</p>';
+    if(q.wrong.length){
+      h+='<h2>Các từ cần ôn lại</h2><ul class="wrong">'+q.wrong.map(function(w){return "<li><b>"+esc(w.en)+"</b> = "+esc(w.vi)+"</li>"}).join("")+"</ul>";
+    }
+    h+='<div class="row"><button class="btn" id="again" type="button">Làm lại</button></div></div>';
+    q=null;
+    $("#quiz").hidden=true;$("#setup").hidden=true;$("#result").hidden=false;
+    $("#result").innerHTML=h;
+    $("#again").onclick=renderSetup;
+  }
+
+  document.addEventListener("keydown",function(e){
+    if(q&&q.phase==="feedback"&&e.key==="Enter"&&!$("#quiz").hidden){e.preventDefault();q.i++;nextQ()}
+  });
+
+  /* ---------- Thêm / danh sách ---------- */
+  function dup(en,vi){return words.some(function(w){return nEn(w.en)===nEn(en)&&nVi(w.vi)===nVi(vi)})}
+
+  $("#addf").onsubmit=function(e){
+    e.preventDefault();
+    var en=clean($("#en").value),vi=clean($("#vi").value),m=$("#addmsg");
+    if(!en||!vi){m.textContent="Hãy nhập cả từ tiếng Anh và nghĩa tiếng Việt.";m.className="msg bad";return}
+    if(en.indexOf("|")>=0||vi.indexOf("|")>=0){m.textContent="Không dùng ký tự | trong từ.";m.className="msg bad";return}
+    if(dup(en,vi)){m.textContent="Cặp từ này đã có rồi.";m.className="msg bad";return}
+    words.push({en:en,vi:vi});save();updateCount();
+    m.textContent="Đã thêm: "+en+" = "+vi;m.className="msg ok";
+    $("#en").value="";$("#vi").value="";$("#en").focus();
+  };
+  $("#en").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();$("#vi").focus()}});
+
+  function renderList(){
+    updateCount();
+    var ul=$("#words");
+    if(!words.length){ul.innerHTML='<li class="center">Chưa có từ nào.</li>'}
+    else ul.innerHTML=words.map(function(w,i){
+      return '<li><div class="w"><b>'+esc(w.en)+'</b><span>'+esc(w.vi)+'</span></div><button class="del" data-i="'+i+'" aria-label="Xóa '+esc(w.en)+'">×</button></li>';
+    }).join("");
+    $("#exp").value=words.map(function(w){return w.en+"|"+w.vi}).join("\n");
+  }
+  $("#words").addEventListener("click",function(e){
+    var b=e.target.closest(".del");if(!b)return;
+    words.splice(+b.dataset.i,1);save();renderList();
+  });
+
+  $("#impbtn").onclick=function(){
+    var added=0;
+    $("#imp").value.split(/\r?\n/).forEach(function(line){
+      var p=line.indexOf("|");if(p<1)return;
+      var en=clean(line.slice(0,p)),vi=clean(line.slice(p+1));
+      if(en&&vi&&!dup(en,vi)){words.push({en:en,vi:vi});added++}
+    });
+    save();renderList();
+    var m=$("#impmsg");m.textContent=added?"Đã nhập "+added+" từ mới.":"Không có từ mới nào để nhập.";m.className="msg "+(added?"ok":"info");
+    if(added)$("#imp").value="";
+  };
+
+  load();updateCount();renderSetup();
+})();
+</script>
+</body>
+</html>
