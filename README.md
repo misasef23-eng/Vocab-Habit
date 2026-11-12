@@ -25,3 +25,25 @@ vocab-recall-engine/
 ├── data/             # Thư mục chứa các list từ vựng mặc định (.txt / .json)
 ├── CMakeLists.txt    # File cấu hình build hệ thống
 └── README.md
+# Clone repository về máy
+git clone [https://github.com/Misasef23-eng/nhin-noi-dau-da-lau-chang-thay.git](https://github.com/Misasef23-eng/nhin-noi-dau-da-lau-chang-thay.git)
+cd vocab-recall-engine
+
+# Tạo thư mục build và biên dịch
+mkdir build && cd build
+cmake ..
+make
+
+# Chạy chương trình
+./vocab_recall
+
+Apple|quả táo
+Banana|quả chuối
+Active Recall|phương pháp chủ động gợi nhớ
+
+🤝 Đóng góp (Contributing)
+Mọi đóng góp, báo lỗi (issues) hoặc ý tưởng cải thiện thuật toán Active Recall đều rất hoan nghênh! Hãy tạo một Pull Request hoặc mở Issue để chúng ta cùng thảo luận nhé.
+
+📄 License
+Dự án được phân phối dưới giấy phép MIT License.
+
