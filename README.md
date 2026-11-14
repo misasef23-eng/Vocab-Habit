@@ -1,5 +1,5 @@
-# 🚀 Vocab Recall Engine (C++ Core)
-
+# 🚀 Vocab Recall Engine (C++ Core) HOẶC bản website chạy ngay không cần cài đặt phức tạp tại VocabHabit.pages.dev
+check my website: vocabhabit.pages.dev
 Một chương trình C++ tối ưu hóa cho việc học từ vựng tiếng Anh theo phương pháp **Active Recall** (Chủ động gợi nhớ). Dự án được thiết kế với lõi C++ hiệu năng cao, hỗ trợ quản lý từ vựng linh hoạt, nhập liệu đa dạng và tích hợp giao diện web hiện đại.
 
 ---
