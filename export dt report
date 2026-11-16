@@ -1,0 +1,300 @@
+/* ---------- Báo cáo PDF ---------- */ /*con Claude fable 5.2 cook được quả này đỉnh vãi buồi*/
+  var fmtD=function(k){var p=k.split("-");return p[2]+"/"+p[1]+"/"+p[0]};
+  var fmtS=function(s){s=Math.round(s||0);var h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?h+" giờ "+m+" phút":m?m+" phút "+(s%60)+" giây":s+" giây"};
+  var pc=function(a,b){return b?Math.round(a*100/b)+"%":"–"};
+  var WD=["Chủ nhật","Thứ hai","Thứ ba","Thứ tư","Thứ năm","Thứ sáu","Thứ bảy"];
+  var wdOf=function(k){var p=k.split("-");return new Date(+p[0],+p[1]-1,+p[2],12).getDay()};
+  var MODES=["Anh → Việt","Việt → Anh","Ngẫu nhiên"];
+  function modeLabel(s){var zh=DMAP[s.d]&&DMAP[s.d].lang==="zh";return (zh?["Hán → Việt","Việt → Pinyin","Ngẫu nhiên"]:MODES)[s.m]||"–"}
+  function wstat(w){
+    var o=w.ok||0,b=w.bad||0,t=o+b;
+    if(!t)return "Chưa học";
+    var a=o/t;
+    if(o>=3&&a>=.8)return "Đã thuộc";
+    if(a<.5)return "Cần ôn";
+    return "Đang học";
+  }
+  function tbl(head,rows,empty){
+    if(!rows.length)return "<p>"+empty+"</p>";
+    return "<table><thead><tr>"+head.map(function(h){return "<th>"+h+"</th>"}).join("")+"</tr></thead><tbody>"+
+      rows.map(function(r){return "<tr>"+r.map(function(c){return "<td>"+c+"</td>"}).join("")+"</tr>"}).join("")+"</tbody></table>";
+  }
+
+  function buildReport(){
+    var now=new Date();
+    var dk=Object.keys(days).filter(function(k){return days[k]>0}).sort();
+    var keySet={};
+    dk.forEach(function(k){keySet[k]=1});
+    Object.keys(log.days).forEach(function(k){keySet[k]=1});
+    var keys=Object.keys(keySet).sort();
+    var totOk=0,bestK=null;
+    dk.forEach(function(k){totOk+=days[k];if(!bestK||days[k]>days[bestK])bestK=k});
+    var L={ok:0,bad:0,hint:0,sec:0,quiz:0},lk=Object.keys(log.days).sort();
+    lk.forEach(function(k){var d=log.days[k];L.ok+=d.ok||0;L.bad+=d.bad||0;L.hint+=d.hint||0;L.sec+=d.sec||0;L.quiz+=d.quiz||0});
+    var st=streaks(),nFav=words.filter(isFav).length;
+    var cnt={"Chưa học":0,"Đang học":0,"Cần ôn":0,"Đã thuộc":0};
+    words.forEach(function(w){cnt[wstat(w)]++});
+    var dAll={},dn=0,dStud=0,dDone=0,dRev=0,dOk=0,dBad=0;
+    DECKS.forEach(function(d){d.items.forEach(function(it){
+      if(dAll[it.k])return;dAll[it.k]=1;dn++;
+      var st0=deckStat[it.k]||{},ss=wstat(st0);
+      if(ss!=="Chưa học")dStud++;
+      if(ss==="Đã thuộc")dDone++;
+      if(ss==="Cần ôn")dRev++;
+      dOk+=st0.ok||0;dBad+=st0.bad||0;
+    })});
+    var kvs=[
+      [words.length,"Tổng số từ"],[nFav,"Từ yêu thích ★"],[dk.length,"Số ngày đã học"],[totOk,"Tổng từ trả lời đúng"],
+      [st.cur+" ngày","Chuỗi hiện tại"],[st.best+" ngày","Chuỗi dài nhất"],
+      [dk.length?(Math.round(totOk/dk.length*10)/10)+" từ":"–","Trung bình mỗi ngày học"],
+      [bestK?days[bestK]+" từ ("+fmtD(bestK)+")":"–","Ngày học nhiều nhất"],
+      [L.ok+L.bad,"Tổng câu đã làm (chi tiết)"],[pc(L.ok,L.ok+L.bad),"Độ chính xác"],[L.quiz,"Số buổi kiểm tra"],[fmtS(L.sec),"Tổng thời gian học"],
+      [cnt["Đã thuộc"],"Từ đã thuộc"],[cnt["Đang học"],"Từ đang học"],[cnt["Cần ôn"],"Từ cần ôn"],[cnt["Chưa học"],"Từ chưa học"],
+      [dStud+" / "+dn,"Bộ có sẵn: từ đã học"],[dDone,"Bộ có sẵn: từ đã thuộc"],[dRev,"Bộ có sẵn: từ cần ôn"],[pc(dOk,dOk+dBad),"Bộ có sẵn: chính xác"]
+    ];
+    var H='<h1>Báo cáo học từ vựng Anh – Việt</h1><p>Xuất lúc '+esc(now.toLocaleString("vi-VN"))+
+      (dk.length?" · Dữ liệu từ "+fmtD(dk[0])+" đến "+fmtD(dk[dk.length-1]):"")+"</p>";
+    H+="<h2>1. Tổng quan</h2><div class=\"kv\">"+kvs.map(function(x){return '<div class="k"><b>'+esc(x[0])+"</b><span>"+x[1]+"</span></div>"}).join("")+"</div>";
+
+    var yb=yearBounds(),heats="",TH=thresholds();
+    for(var Y=yb.max;Y>=yb.min;Y--){
+      var yt=yearTotals(Y);
+      heats+='<div class="heatbox"><h3>Năm '+Y+': '+yt.tot+' từ trả lời đúng, học '+yt.act+' ngày</h3>'+heatHTML(Y,TH,false).html+"</div>";
+    }
+    H+="<h2>2. Heatmap theo năm</h2>"+heats+LEGEND+'<p class="note">'+colorNote(TH)+"</p>";
+
+    var wdN=[0,0,0,0,0,0,0],wdC=[0,0,0,0,0,0,0],order=[1,2,3,4,5,6,0];
+    dk.forEach(function(k){var i=wdOf(k);wdN[i]++;wdC[i]+=days[k]});
+    H+="<h2>3. Phân bố theo thứ trong tuần</h2>"+tbl([""].concat(order.map(function(i){return WD[i]})),
+      [["Số ngày học"].concat(order.map(function(i){return wdN[i]})),["Từ trả lời đúng"].concat(order.map(function(i){return wdC[i]})),
+       ["Trung bình/ngày"].concat(order.map(function(i){return wdN[i]?Math.round(wdC[i]/wdN[i]*10)/10:"–"}))],"Chưa có dữ liệu.");
+
+    var mo={};
+    keys.forEach(function(k){
+      var m=k.slice(0,7),o=mo[m]||(mo[m]={d:0,c:0,ok:0,bad:0,sec:0,q:0,lg:false});
+      if(days[k]>0){o.d++;o.c+=days[k]}
+      var l=log.days[k];if(l){o.ok+=l.ok||0;o.bad+=l.bad||0;o.sec+=l.sec||0;o.q+=l.quiz||0;o.lg=true}
+    });
+    H+="<h2>4. Thống kê theo tháng</h2>"+tbl(["Tháng","Ngày học","Từ đúng","Câu sai","Chính xác","Thời gian học","Số buổi"],
+      Object.keys(mo).sort().reverse().map(function(m){var o=mo[m];
+        return ["T"+m.slice(5)+"/"+m.slice(0,4),o.d,o.c,o.lg?o.bad:"–",o.lg?pc(o.ok,o.ok+o.bad):"–",o.lg?fmtS(o.sec):"–",o.lg?o.q:"–"]}),"Chưa có dữ liệu.");
+
+    var hard=words.filter(function(w){return (w.bad||0)>0}).sort(function(a,b){
+      var ra=(a.ok||0)/((a.ok||0)+(a.bad||0)),rb=(b.ok||0)/((b.ok||0)+(b.bad||0));
+      return (b.bad||0)-(a.bad||0)||ra-rb}).slice(0,15);
+    H+="<h2>5. Từ cần ôn nhiều nhất</h2>"+tbl(["Từ","Nghĩa","Sai","Đúng","Chính xác"],
+      hard.map(function(w){return ["<b>"+esc(w.en)+"</b>",esc(w.vi),w.bad||0,w.ok||0,pc(w.ok||0,(w.ok||0)+(w.bad||0))]}),"Chưa có từ nào bị trả lời sai.");
+
+    H+="<h2>6. Lịch sử các buổi kiểm tra</h2>"+tbl(["Thời điểm","Kiểu","Bộ từ / phạm vi","Số câu","Đúng","Đúng không gợi ý","Chính xác"],
+      log.sessions.slice().reverse().map(function(s){
+        return [esc(new Date(s.t).toLocaleString("vi-VN")),modeLabel(s),(DMAP[s.d]?esc(DMAP[s.d].name)+" · ":"")+(SCN[s.s]||"Tất cả"),s.n,s.ok,s.p,pc(s.ok,s.n)]}),"Chưa có buổi kiểm tra nào được ghi lại.");
+
+    H+="<h2>7. Chi tiết từng ngày</h2>"+tbl(["Ngày","Thứ","Từ đúng","Câu sai","Dùng gợi ý","Chính xác","Số buổi","Thời gian"],
+      keys.slice().reverse().map(function(k){var l=log.days[k];
+        return [fmtD(k),WD[wdOf(k)],days[k]||0,l?l.bad||0:"–",l?l.hint||0:"–",l?pc(l.ok||0,(l.ok||0)+(l.bad||0)):"–",l?l.quiz||0:"–",l?fmtS(l.sec):"–"]}),"Chưa có ngày học nào.");
+
+    H+="<h2>8. Chi tiết từng từ (danh sách của bạn)</h2>"+tbl(["#","Từ tiếng Anh","Nghĩa tiếng Việt","★","Đúng","Sai","Chính xác","Lần cuối","Trạng thái"],
+      words.slice().sort(function(a,b){return a.en.localeCompare(b.en,"en")}).map(function(w,i){
+        var o=w.ok||0,b=w.bad||0;
+        return [i+1,"<b>"+esc(w.en)+"</b>",esc(w.vi),isFav(w)?"★":"",o,b,pc(o,o+b),w.last?fmtD(w.last):"–",wstat(w)]}),"Chưa có từ nào.");
+
+    var drows=DECKS.map(function(d){var c=deckProgress(d);return [esc(d.name),c.n,c.n-c.nw,c.done,c.mid,c.rev,c.nw,pc(c.ok,c.ok+c.bad)]});
+    var seenK={},dets=[];
+    DECKS.forEach(function(d){d.items.forEach(function(it){
+      var st1=deckStat[it.k];
+      if(seenK[it.k]||!st1||!((st1.ok||0)+(st1.bad||0)))return;
+      seenK[it.k]=1;
+      dets.push([esc(d.name),"<b>"+esc(it.en)+"</b>",esc(it.vi),st1.fav?"★":"",st1.ok||0,st1.bad||0,pc(st1.ok||0,(st1.ok||0)+(st1.bad||0)),st1.last?fmtD(st1.last):"–",wstat(st1)]);
+    })});
+    H+="<h2>9. Bộ từ có sẵn</h2>"+tbl(["Bộ từ","Tổng từ","Đã học","Đã thuộc","Đang học","Cần ôn","Chưa học","Chính xác"],drows,"Chưa có dữ liệu.")+
+      "<h3>Các từ đã học trong bộ có sẵn</h3>"+tbl(["Bộ","Từ","Nghĩa","★","Đúng","Sai","Chính xác","Lần cuối","Trạng thái"],dets,"Chưa học từ nào trong bộ có sẵn.");
+
+    H+='<p class="note">Ghi chú: số từ trả lời đúng theo ngày được ghi từ '+(dk.length?fmtD(dk[0]):"–")+
+      "; các chi tiết đúng/sai, gợi ý, thời gian, số buổi và thống kê từng từ được ghi từ "+(lk.length?fmtD(lk[0]):"khi bạn bắt đầu làm bài kiểm tra")+
+      ". Thời gian học tính từ lúc hiện câu hỏi đến khi trả lời, tối đa 60 giây mỗi câu. Trạng thái từ: Đã thuộc (đúng ít nhất 3 lần và từ 80% trở lên), Cần ôn (dưới 50%), Đang học (còn lại), Chưa học (chưa có lượt nào). Từ xuất hiện ở nhiều bộ có sẵn dùng chung một bộ số liệu.</p>";
+    $("#report").innerHTML=H;
+  }
+
+  /* ---------- Sao lưu / nhập file sao lưu ---------- */
+  var DRE=/^\d{4}-\d{2}-\d{2}$/;
+  var num=function(x){x=+x;return isFinite(x)&&x>0?Math.floor(x):0};
+
+  function downloadBackup(){
+    var data={app:"tuvung",v:SCHEMA,exported:new Date().toISOString(),words:words,days:days,log:log,deck:deckStat};
+    var name="tuvung-sao-luu-"+dkey(new Date())+".json";
+    saveFile(name,data);
+    var b=readBk();b.last=new Date().toISOString();delete b.snooze;writeBk(b);
+    if(!$("#streak").hidden){
+      renderStreak();
+      var m=$("#bkmsg");if(m){m.textContent="Đã tải file sao lưu: "+name;m.className="msg ok"}
+    }
+  }
+
+
+  function mergeBackup(o){
+    if(blockWrites)throw new Error("blocked");
+    if(!o||o.app!=="tuvung"||!Array.isArray(o.words))throw new Error("format");
+    if(+o.v>SCHEMA)throw new Error("newer");
+    var r={w:0,d:0,s:0,k:0};
+    o.words.forEach(function(x){
+      if(!x||typeof x.en!=="string"||typeof x.vi!=="string")return;
+      var en=clean(x.en),vi=clean(x.vi);
+      if(!en||!vi||en.indexOf("|")>=0||vi.indexOf("|")>=0)return;
+      var ex=words.filter(function(w){return nEn(w.en)===nEn(en)&&nVi(w.vi)===nVi(vi)})[0];
+      if(!ex){ex={en:en,vi:vi};words.push(ex);r.w++}
+      if(x.fav===true)ex.fav=true;
+      var ok=num(x.ok),bad=num(x.bad);
+      if(ok>(ex.ok||0))ex.ok=ok;
+      if(bad>(ex.bad||0))ex.bad=bad;
+      //if(typeof x.last==="string"&&DRE.test(x.last)&&(!ex.last||x.last>ex.last))ex.last=x.last;
+      if(typeof x.last==="string"&&DRE.test(x.last)&&(!ex.last||x.last>ex.last))ex.last=x.last;
+      if(Array.isArray(x.syn))x.syn.forEach(function(s){if(typeof s==="string"){if(!ex.syn)ex.syn=[];if(ex.syn.indexOf(s)<0)ex.syn.push(s)}});
+    });
+    
+    var bd=o.days&&typeof o.days==="object"?o.days:{};
+    Object.keys(bd).forEach(function(k){
+      var n=num(bd[k]);
+      if(DRE.test(k)&&n>(days[k]||0)){days[k]=n;r.d++}
+    });
+    var bl=o.log&&o.log.days&&typeof o.log.days==="object"?o.log.days:{};
+    Object.keys(bl).forEach(function(k){
+      var src=bl[k];
+      if(!DRE.test(k)||!src||typeof src!=="object")return;
+      var F=["ok","bad","hint","sec","quiz"],v={},any=false;
+      F.forEach(function(f){v[f]=num(src[f]);if(v[f])any=true});
+      if(!any)return;
+      var t=log.days[k]||(log.days[k]={ok:0,bad:0,hint:0,sec:0,quiz:0});
+      F.forEach(function(f){if(v[f]>t[f])t[f]=v[f]});
+    });
+    var bk=o.deck&&typeof o.deck==="object"?o.deck:{},known={};
+    DECKS.forEach(function(d){d.items.forEach(function(it){known[it.k]=1})});
+    Object.keys(bk).forEach(function(k){
+      var x=bk[k];
+      if(!known[k]||!x||typeof x!=="object")return;
+      var ex=deckStat[k]||(deckStat[k]={}),ch=false,ok=num(x.ok),bad=num(x.bad);
+      if(ok>(ex.ok||0)){ex.ok=ok;ch=true}
+      if(bad>(ex.bad||0)){ex.bad=bad;ch=true}
+      if(x.fav===true&&!ex.fav){ex.fav=true;ch=true}
+      //if(typeof x.last==="string"&&DRE.test(x.last)&&(!ex.last||x.last>ex.last)){ex.last=x.last;ch=true}
+      //if(ch)r.k++;
+      if(typeof x.last==="string"&&DRE.test(x.last)&&(!ex.last||x.last>ex.last)){ex.last=x.last;ch=true}
+      if(Array.isArray(x.syn))x.syn.forEach(function(s){if(typeof s==="string"){if(!ex.syn)ex.syn=[];if(ex.syn.indexOf(s)<0){ex.syn.push(s);ch=true}}});
+      if(ch)r.k++;
+      if(!Object.keys(ex).length)delete deckStat[k];
+    });
+    var seen={};
+    log.sessions.forEach(function(s){seen[s.t]=1});
+    (o.log&&Array.isArray(o.log.sessions)?o.log.sessions:[]).forEach(function(s){
+      if(!s||typeof s.t!=="string"||isNaN(Date.parse(s.t))||seen[s.t])return;
+      seen[s.t]=1;
+      log.sessions.push({t:s.t,m:Math.min(2,num(s.m)),s:SCN[s.s]?s.s:"all",d:DMAP[s.d]?s.d:undefined,n:num(s.n),ok:num(s.ok),p:num(s.p)});
+      r.s++;
+    });
+    log.sessions.sort(function(a,b){return a.t<b.t?-1:a.t>b.t?1:0});
+    if(log.sessions.length>300)log.sessions=log.sessions.slice(-300);
+    save();saveDays();saveLog();saveDeck();updateCount();
+    return r;
+  }
+
+  function importBackup(file){
+    var rd=new FileReader();
+    rd.onerror=function(){var m=$("#bkmsg");m.textContent="Không đọc được file này.";m.className="msg bad"};
+    rd.onload=function(){
+      var res=null,err="";
+      try{res=mergeBackup(JSON.parse(rd.result))}catch(e){res=null;err=e&&e.message}
+      if(res)renderStreak();
+      var m=$("#bkmsg");
+      if(!res){
+        m.textContent=err==="newer"?"File sao lưu này được tạo bởi phiên bản app mới hơn. Hãy tải lại trang (Ctrl/Cmd + Shift + R) để cập nhật app rồi thử lại."
+          :err==="blocked"?"App đang chờ cập nhật nên chưa nhập được. Hãy tải lại trang (Ctrl/Cmd + Shift + R) rồi thử lại."
+          :"File không đúng định dạng sao lưu của app này.";
+        m.className="msg bad";return}
+      var t=[];
+      if(res.w)t.push(res.w+" từ mới");
+      if(res.d)t.push(res.d+" ngày học được cập nhật");
+      if(res.k)t.push(res.k+" từ trong bộ từ có sẵn");
+      if(res.s)t.push(res.s+" buổi kiểm tra");
+      m.textContent=t.length?"Đã nhập: "+t.join(", ")+".":"Không có dữ liệu mới nào để nhập (dữ liệu trong file đã có sẵn).";
+      m.className="msg "+(t.length?"ok":"info");
+    };
+    rd.readAsText(file);
+  }
+
+  function exportPdf(){
+    var m=$("#pdfmsg");
+    try{
+      buildReport();
+      var old=document.title;
+      document.title="bao-cao-hoc-tu-vung-"+dkey(new Date());
+      var done=function(){document.title=old;window.removeEventListener("afterprint",done)};
+      window.addEventListener("afterprint",done);
+      window.print();
+    }catch(e){
+      m.textContent="Trình duyệt không mở được hộp thoại in. Hãy thử mở file bằng Chrome hoặc Safari.";m.className="msg bad";
+    }
+  }
+
+  /* ---------- Phát âm & IPA ----------
+     - Phát âm dùng Web Speech API có sẵn trong trình duyệt: không tải gì từ mạng. Chạy được offline khi thiết bị có giọng đọc cài sẵn
+       (iPhone/iPad, Mac, Windows, Android có giọng ngoại tuyến). App ưu tiên giọng cài sẵn trên máy (localService).
+     - IPA tạo sẵn từ CMUdict (tiếng Anh, giọng Mỹ) và dragonmapper (tiếng Trung, dùng ký hiệu Chao cho thanh điệu), nhúng trong biến IPA. */
+ /* var ENIPA={}, PREF="tuvung-pref-v1", prefs={ipa:false}, snd={voices:[]};
+  var SND_OK=("speechSynthesis" in window)&&("SpeechSynthesisUtterance" in window);
+  var ICON='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 9v6h4l5 4V5L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06A9 9 0 0 0 14 3.23z"/></svg>';
+  function loadPrefs(){try{var o=JSON.parse(localStorage.getItem(PREF)||"{}");if(isObj(o))prefs.ipa=o.ipa===true}catch(e){}}
+  */
+  var ENIPA={}, PREF="tuvung-pref-v1", prefs={ipa:false,mc:false}, snd={voices:[]};
+  var SND_OK=("speechSynthesis" in window)&&("SpeechSynthesisUtterance" in window);
+  var ICON='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 9v6h4l5 4V5L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06A9 9 0 0 0 14 3.23z"/></svg>';
+  function loadPrefs(){try{var o=JSON.parse(localStorage.getItem(PREF)||"{}");if(isObj(o)){prefs.ipa=o.ipa===true;prefs.mc=o.mc===true}}catch(e){}}
+  function savePrefs(){if(blockWrites)return;try{localStorage.setItem(PREF,JSON.stringify(prefs))}catch(e){}}
+  function loadVoices(){try{snd.voices=window.speechSynthesis.getVoices()||[]}catch(e){snd.voices=[]}}
+  if(SND_OK){
+    loadVoices();
+    try{window.speechSynthesis.addEventListener("voiceschanged",loadVoices)}catch(e){try{window.speechSynthesis.onvoiceschanged=loadVoices}catch(e2){}}
+  }
+  function pickVoice(lang){
+    var best=null,bs=-1;
+    snd.voices.forEach(function(v){
+      var l=String(v.lang||"").toLowerCase().replace("_","-");
+      if(l.indexOf(lang)!==0)return;
+      var sc=0;
+      if(v.localService)sc+=4;
+      if(lang==="zh"?(l==="zh-cn"||l==="zh-hans-cn"):l==="en-us")sc+=2;
+      if(v.default)sc+=1;
+      if(sc>bs){bs=sc;best=v}
+    });
+    return best;
+  }
+  function sndMsg(t){document.querySelectorAll(".sndmsg").forEach(function(m){m.textContent=t||""})}
+  function sndErr(code,lang){
+    var ln=lang==="zh"?"tiếng Trung":"tiếng Anh";
+    if(code==="network")return "Giọng đọc này cần mạng. Hãy cài giọng đọc "+ln+" ngoại tuyến trong Cài đặt của thiết bị.";
+    if(code==="not-allowed")return "Trình duyệt đang chặn âm thanh. Hãy bấm nút Nghe lần nữa.";
+    return "Thiết bị chưa có giọng đọc "+ln+". Bạn có thể cài thêm trong Cài đặt của thiết bị (mục Giọng nói / Text-to-speech).";
+  }
+  function speak(text,lang,btn){
+    if(!SND_OK){sndMsg("Trình duyệt này chưa hỗ trợ phát âm.");return}
+    var ss=window.speechSynthesis;
+    try{ss.cancel()}catch(e){}
+    if(!snd.voices.length)loadVoices();
+    var v=pickVoice(lang),u=new window.SpeechSynthesisUtterance(text),started=false;
+    u.lang=lang==="zh"?"zh-CN":"en-US";
+    if(v){u.voice=v;u.lang=v.lang}
+    u.rate=lang==="zh"?.85:.9;
+    if(v&&!v.localService&&navigator.onLine===false){sndMsg(sndErr("network",lang));return}
+    if(!v&&snd.voices.length){sndMsg(sndErr("voice",lang));return}
+    sndMsg("");
+    if(btn)btn.classList.add("on");
+    u.onstart=function(){started=true};
+    u.onend=function(){started=true;if(btn)btn.classList.remove("on")};
+    u.onerror=function(e){
+      if(btn)btn.classList.remove("on");
+      var c=e&&e.error;
+      if(c&&c!=="canceled"&&c!=="interrupted")sndMsg(sndErr(c,lang));
+    };
+    try{ss.speak(u)}catch(e){if(btn)btn.classList.remove("on");sndMsg("Không phát được âm thanh.");return}
+    setTimeout(function(){
+      if(!started&&btn&&btn.classList.contains("on")){btn.classList.remove("on");sndMsg("Chưa phát được âm thanh. Hãy kiểm tra âm lượng, hoặc cài giọng đọc ngoại tuyến trong Cài đặt của thiết bị.")}
+    },3000);
+  }
