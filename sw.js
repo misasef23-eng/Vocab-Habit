@@ -2,7 +2,7 @@
    - Trang chính: ưu tiên bản mới từ mạng (để người dùng luôn nhận bản cập nhật), mất mạng hoặc mạng chậm thì dùng bản đã lưu.
    - Ảnh icon, manifest: dùng bản đã lưu trước.
    Mỗi lần đổi icon hoặc danh sách file cần lưu sẵn, hãy tăng VERSION để trình duyệt tải lại bộ lưu sẵn. */
-const VERSION = 'v6'; /* mỗi lần update thì +1 vào số sau v nhé */
+const VERSION = 'v7'; /* mỗi lần update thì +1 vào số sau v nhé */
 const CACHE = 'vocabhabit-' + VERSION;
 const PRECACHE = [
   './',
