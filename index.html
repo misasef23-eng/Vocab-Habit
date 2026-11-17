@@ -92,6 +92,15 @@ input:focus,textarea:focus,button:focus-visible,summary:focus-visible{outline:2.
 .msg u{text-decoration-thickness:2px;text-underline-offset:3px}
 .msg .typed{font-weight:400;color:var(--muted)}
 .msg .wrongnote{display:block;margin-top:4px}
+.mcrev{margin-top:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--soft)}
+.mcrev h4{margin:0 0 6px;font-size:.85rem;color:var(--muted);font-weight:600}
+.mcrev ul{list-style:none;margin:0;padding:0}
+.mcrev li{display:flex;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+.mcrev li:last-child{border-bottom:0}
+.mcrev .rm{flex:0 0 1em;color:var(--muted)}
+.mcrev .rt{flex:1;min-width:0;overflow-wrap:anywhere}
+.mcrev .ro{flex:1;min-width:0;overflow-wrap:anywhere;color:var(--muted);text-align:right}
+.mcrev li.rok{font-weight:600}.mcrev li.rok .rm{color:var(--ok)}
 .msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}.msg.info{color:var(--muted)}
 .shake{animation:sh .3s}
 @keyframes sh{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
@@ -107,6 +116,7 @@ ul.words li:last-child{border-bottom:0}
 ul.words .w{flex:1;min-width:0;overflow-wrap:anywhere}
 ul.words .w b{display:block}
 ul.words .w span{color:var(--muted)}
+ul.words .w .dkname{display:block;font-size:.78rem;color:var(--muted);opacity:.8;margin-top:2px}
 .del{border:0;background:var(--badbg);color:var(--bad);width:34px;height:34px;border-radius:8px;font-size:1.1rem;cursor:pointer}
 .star{border:0;background:var(--soft);color:var(--muted);width:34px;height:34px;border-radius:8px;font-size:1.15rem;cursor:pointer;line-height:1}
 .star.on{color:var(--hot)}
@@ -1774,13 +1784,25 @@ function addUniq(arr,x){if(arr.indexOf(x)<0)arr.push(x)}
     }
   }
 
+  function otherOf(it){
+    var zhq=q.deck&&q.deck.lang==="zh";
+    return q.toVi?((zhq&&it.zh)?it.zh+(it.py?" ("+it.py+")":""):it.en):it.vi;
+  }
+  function showReview(){
+    if(!mcOn()||!q||!q.choices)return;
+    var old=$("#mcrev");if(old)old.remove();
+    var rows=q.choices.map(function(ch){
+      var o=ch.src?otherOf(ch.src):"";
+      return '<li class="'+(ch.ok?"rok":"")+'"><span class="rm">'+(ch.ok?"✓":"•")+'</span><span class="rt">'+esc(ch.text)+'</span><span class="ro">'+esc(o)+'</span></li>';
+    }).join("");
+    var host=$("#qbody");if(!host)return;
+    host.insertAdjacentHTML("afterend",'<div class="mcrev" id="mcrev"><h4>Nghĩa của các đáp án</h4><ul>'+rows+'</ul></div>');
+  }
   function wrongInfo(ch){
     var it=ch&&ch.src;if(!it)return "";
-    var zhq=q.deck&&q.deck.lang==="zh",other;
-    if(q.toVi)other=(zhq&&it.zh)?it.zh+(it.py?" ("+it.py+")":""):it.en;
-    else other=it.vi;
+    var other=otherOf(it);
     if(!other)return "";
-    return '<span class="typed wrongnote">“'+esc(ch.text)+'” là: <b>'+esc(other)+'</b></span>';
+    return '<span class="typed wrongnote">“'+esc(ch.text)+'” nghĩa là: <b>'+esc(other)+'</b></span>';
   }
 
   function pickChoice(btn,idx){
@@ -1789,14 +1811,14 @@ function addUniq(arr,x){if(arr.indexOf(x)<0)arr.push(x)}
       btn.classList.add("ok");
       var t="Chính xác!";
       if(q.hinted)t+=" (đã dùng gợi ý nên không tính điểm)";
-      reveal(true,t);
+      reveal(true,t);showReview();
     }else{
       ch.tried=true;btn.classList.add("bad");btn.disabled=true;
       q.tries++;
       var wi=wrongInfo(ch);
       if(q.tries>=3){
         var ra=q.ans||q.acc[0];
-        reveal(false,"Sai 3 lần rồi. Đáp án: "+ra,'Sai 3 lần rồi. Đáp án: <b>'+esc(ra)+'</b>'+wi);
+        reveal(false,"Sai 3 lần rồi. Đáp án: "+ra,'Sai 3 lần rồi. Đáp án: <b>'+esc(ra)+'</b>'+wi);showReview();
       }else{
         msg("","bad",'Chưa đúng, thử lại nhé (còn '+(3-q.tries)+' lần).'+wi);
         btn.classList.remove("shake");void btn.offsetWidth;btn.classList.add("shake");
@@ -2008,21 +2030,37 @@ function addUniq(arr,x){if(arr.indexOf(x)<0)arr.push(x)}
   };
   $("#en").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();$("#vi").focus()}});
 
+  function deckItem(k){
+    for(var i=0;i<DECKS.length;i++){var its=DECKS[i].items;for(var j=0;j<its.length;j++)if(its[j].k===k)return {d:DECKS[i],it:its[j]}}
+    return null;
+  }
   function renderList(){
     updateCount();
     var ul=$("#words");
     document.querySelectorAll("#lfilter button").forEach(function(b){b.classList.toggle("on",b.dataset.f===filt)});
     var rows=[];
     words.forEach(function(w,i){if(filt==="all"||isFav(w))rows.push('<li><div class="w"><b>'+esc(w.en)+'</b><span>'+esc(w.vi)+'</span></div>'+(SND_OK?'<button type="button" class="sndb" data-i="'+i+'" aria-label="Nghe '+esc(w.en)+'">'+ICON+'</button>':'')+'<button class="star'+(isFav(w)?' on':'')+'" data-i="'+i+'" aria-pressed="'+isFav(w)+'" aria-label="Yêu thích '+esc(w.en)+'">'+(isFav(w)?'★':'☆')+'</button><button class="del" data-i="'+i+'" aria-label="Xóa '+esc(w.en)+'">×</button></li>')});
-    if(!words.length)ul.innerHTML='<li class="center">Chưa có từ nào.</li>';
-    else if(!rows.length)ul.innerHTML='<li class="center">Chưa có từ yêu thích nào. Bấm ☆ cạnh một từ để thêm.</li>';
+    if(filt==="fav"){
+      DECKS.forEach(function(d){
+        d.items.forEach(function(it){
+          var st=deckStat[it.k];if(!st||st.fav!==true)return;
+          var zh=d.lang==="zh",main=zh?it.zh+(it.py?" ("+it.py+")":""):it.en;
+          rows.push('<li><div class="w"><b>'+esc(main)+'</b><span>'+esc(it.vi)+'</span><small class="dkname">'+esc(d.name)+'</small></div>'+
+            (SND_OK?'<button type="button" class="sndb" data-k="'+esc(it.k)+'" aria-label="Nghe '+esc(main)+'">'+ICON+'</button>':'')+
+            '<button class="star on" data-k="'+esc(it.k)+'" aria-pressed="true" aria-label="Bỏ yêu thích '+esc(main)+'">★</button></li>');
+        });
+      });
+    }
+    if(!rows.length)ul.innerHTML=filt==="fav"?'<li class="center">Chưa có từ yêu thích nào. Bấm ☆ cạnh một từ để thêm.</li>':'<li class="center">Chưa có từ nào.</li>';
     else ul.innerHTML=rows.join("");
     $("#exp").value=words.map(function(w){return w.en+"|"+w.vi+(isFav(w)?"|*":"")}).join("\n");
   }
   $("#words").addEventListener("click",function(e){
     var sb=e.target.closest(".sndb");
+    if(sb&&sb.dataset.k){var dit=deckItem(sb.dataset.k);if(dit)speak(dit.d.lang==="zh"?dit.it.zh:dit.it.en,dit.d.lang==="zh"?"zh":"en",sb);return}
     if(sb){var sw=words[+sb.dataset.i];if(sw)speak(sw.en,"en",sb);return}
     var st=e.target.closest(".star");
+    if(st&&st.dataset.k){delete deckStat[st.dataset.k].fav;if(!Object.keys(deckStat[st.dataset.k]).length)delete deckStat[st.dataset.k];saveDeck();renderList();return}
     if(st){var w=words[+st.dataset.i];w.fav=!isFav(w);if(!w.fav)delete w.fav;save();renderList();return}
     var b=e.target.closest(".del");if(!b)return;
     words.splice(+b.dataset.i,1);save();renderList();
