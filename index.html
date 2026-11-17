@@ -1444,12 +1444,52 @@ function persist(c){
       '<div class="dkgo"><button class="btn" id="dkgo" type="button"></button></div></div><div id="deckopts"></div>';
     var goLbl=function(){$("#dkgo").textContent="Học "+DMAP[deckSel].name+" →"};
     goLbl();
-    $("#dkgo").onclick=function(){var o=$("#deckopts");if(o&&o.scrollIntoView)o.scrollIntoView({behavior:"smooth",block:"start"})};
+    $("#dkgo").onclick=function(){
+      var o=$("#deckopts");if(!o)return;
+      /* Chừa thêm chỗ trống dưới phần tùy chọn để trang đủ dài, cuộn được tới khi đầu thẻ nằm sát mép trên (không bị footer chen vào) */
+      o.style.paddingBottom="0px";
+      var f=document.querySelector(".footer"),fh=f?f.offsetHeight:0;
+      var need=window.innerHeight-16-o.offsetHeight-fh;
+      if(need>0)o.style.paddingBottom=need+"px";
+      scrollToEl(o,8);
+    };
     document.querySelectorAll("input[name=deck]").forEach(function(r){r.onchange=function(){deckSel=r.value;goLbl();renderDeckOpts()}});
     renderDeckOpts();
   }
 
+  var scrollAnim=0;
+  function slowScrollTo(y,dur){
+    y=Math.max(0,Math.round(y));
+    var y0=window.pageYOffset||document.documentElement.scrollTop||0,d=y-y0;
+    cancelAnimationFrame(scrollAnim);
+    var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(Math.abs(d)<2||reduce||!window.requestAnimationFrame){window.scrollTo(0,y);return}
+    var t0=null,T=dur||700;
+    function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
+    function step(ts){
+      if(t0===null)t0=ts;
+      var k=Math.min(1,(ts-t0)/T);
+      window.scrollTo(0,y0+d*ease(k));
+      if(k<1)scrollAnim=requestAnimationFrame(step);
+    }
+    scrollAnim=requestAnimationFrame(step);
+  }
+  function scrollToEl(el,pad){
+    if(!el)return;
+    var y=el.getBoundingClientRect().top+(window.pageYOffset||document.documentElement.scrollTop||0)-(pad||0);
+    slowScrollTo(y,650);
+  }
+  /* Sau khi trả lời: cuộn chậm xuống vừa đủ để thấy nút "Câu tiếp" */
+  function revealNextBtn(){
+    var b=$("#nxt");if(!b)return;
+    setTimeout(function(){
+      var r=b.getBoundingClientRect(),vh=window.innerHeight;
+      if(r.bottom<=vh-16)return;
+      slowScrollTo((window.pageYOffset||document.documentElement.scrollTop||0)+r.bottom-vh+24,800);
+    },450);
+  }
   function renderDeckOpts(){
+    var dop=$("#deckopts");if(dop)dop.style.paddingBottom="";
     var d=DMAP[deckSel],c=deckProgress(d),zh=d.lang==="zh";
     var cnt={"new":c.nw,rev:c.mid+c.rev,all:c.n,"fav":c.fav};
     var sc=(deckScope&&cnt[deckScope])?deckScope:(cnt["new"]?"new":cnt.rev?"rev":"all");
@@ -1488,6 +1528,7 @@ function persist(c){
     q={list:list.slice(0,num),i:0,mode:deckMode,score:0,okAll:0,scope:sc,asked:0,wrong:[],phase:"ask",deck:d,py:deckPy};
     $("#decksetup").hidden=true;$("#result").hidden=true;$("#quiz").hidden=false;$("#lsub").hidden=true;
     nextQ();
+    scrollToEl($("#quiz"),12);
   }
 
  /* function addUniq(arr,x){if(arr.indexOf(x)<0)arr.push(x)}
@@ -1735,6 +1776,7 @@ function addUniq(arr,x){if(arr.indexOf(x)<0)arr.push(x)}
     q={list:list.slice(0,num),i:0,mode:mode,score:0,okAll:0,scope:(sc&&sc.value==="fav")?"fav":"all",asked:0,wrong:[],phase:"ask"};
     $("#setup").hidden=true;$("#result").hidden=true;$("#quiz").hidden=false;$("#lsub").hidden=true;
     nextQ();
+    scrollToEl($("#quiz"),12);
   }
 
   function makeChoices(c){
@@ -1891,6 +1933,7 @@ function addUniq(arr,x){if(arr.indexOf(x)<0)arr.push(x)}
       if(q&&q.phase==="ask")renderMode();
     };
     bindSound();
+    if(q.i>0)scrollToEl($("#quiz"),12);
   }
 
   function msg(text,cls,html){var m=$("#msg");if(html)m.innerHTML=html;else m.textContent=text;m.className="msg "+cls}
@@ -1987,7 +2030,7 @@ function addUniq(arr,x){if(arr.indexOf(x)<0)arr.push(x)}
     document.querySelectorAll(".mco").forEach(function(b,i){b.disabled=true;if(q.choices&&q.choices[i]&&q.choices[i].ok)b.classList.add("ok")});
     $("#acts").innerHTML='<button class="btn" type="button" id="nxt">Câu tiếp</button>';
     $("#nxt").onclick=function(){q.i++;nextQ()};
-    $("#nxt").focus();
+    $("#nxt").focus({preventScroll:true});revealNextBtn();
   }
 
   function finish(){
@@ -2008,6 +2051,7 @@ function addUniq(arr,x){if(arr.indexOf(x)<0)arr.push(x)}
     $("#quiz").hidden=true;$("#setup").hidden=true;$("#decksetup").hidden=true;$("#result").hidden=false;$("#lsub").hidden=false;
     $("#result").innerHTML=h;
     $("#again").onclick=renderLearn;
+    scrollToEl($("#result"),12);
   }
 
   document.addEventListener("keydown",function(e){
