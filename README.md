@@ -8,7 +8,7 @@
 
 Vì **VocabHabit** hỗ trợ công nghệ PWA, bạn có thể cài đặt trực tiếp trang web này lên màn hình chính như một ứng dụng độc lập (mở toàn màn hình, không có thanh địa chỉ trình duyệt, dùng được khi mất mạng).
 
-> **Điều kiện:** Mở trang web bằng đường dẫn `https://...` (hoặc `http://localhost` nếu chạy thử trên máy tính). Chờ vài giây để trình duyệt tải xong bộ nhớ đệm offline (bạn có thể kiểm tra dòng trạng thái *"✓ Đã sẵn sàng dùng khi không có mạng"* trong mục **Cài VocabHabit như một ứng dụng** ở tab **Streak**).
+> **Điều kiện:** Mở trang web bằng đường dẫn `https://vocabhabit.pages.dev` (hoặc `http://localhost` nếu chạy thử trên máy tính). Chờ vài giây để trình duyệt tải xong bộ nhớ đệm offline (bạn có thể kiểm tra dòng trạng thái *"✓ Đã sẵn sàng dùng khi không có mạng"* trong mục **Cài VocabHabit như một ứng dụng** ở tab **Streak**).
 
 ### 1. Trên iPhone / iPad (iOS / iPadOS)
 > ⚠️ **Bắt buộc dùng trình duyệt Safari** (Apple chưa cho phép các trình duyệt khác như Chrome/Cốc Cốc trên iOS cài đặt ứng dụng web hoàn chỉnh).
@@ -70,9 +70,9 @@ Vì **VocabHabit** hỗ trợ công nghệ PWA, bạn có thể cài đặt tr�
 Bạn có thể chuyển đổi qua lại giữa 2 nguồn từ vựng ở thanh chọn phía trên:
 1. **Từ của tôi:** Học danh sách từ bạn tự thêm (có thể lọc chỉ học các từ gắn sao `★ Yêu thích`).
 2. **Bộ từ có sẵn:** Học 9 bộ từ vựng biên soạn sẵn:
-   - *Tiếng Trung:* HSK 1, HSK 2, HSK 3.
-   - *Tiếng Anh TOEIC:* TOEIC 450, TOEIC 650, TOEIC 800.
-   - *Tiếng Anh giao tiếp & chuyên ngành:* Giao tiếp cơ bản (1000 từ), Y khoa (Medical), Công nghệ thông tin (IT).
+   - *Tiếng Trung:* HSK 1, HSK 2, HSK 3, HSK 4, HSK5 và HSK 6.
+   - *Tiếng Anh TOEIC:* TOEIC 450, TOEIC 650, TOEIC 800, Ielts 6.5, Ielts 7.0, Ielts 8.0 ...
+   - *Tiếng Anh giao tiếp & chuyên ngành:* Giao tiếp cơ bản (1000 từ), Y khoa (Medical), Công nghệ thông tin (IT), Toán-Tin (MI1), Giải Tích, Mat-Lab phương pháp tính, Xác suất thống kê,...
 
 #### Các tùy chọn trước khi bắt đầu bài học:
 - **Phạm vi từ (với Bộ từ có sẵn):**
